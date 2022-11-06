@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/algo-test/static/css/main.c01f4445.css",
+    "main.js": "/algo-test/static/js/main.1eb5bf70.js",
+    "index.html": "/algo-test/index.html",
+    "main.c01f4445.css.map": "/algo-test/static/css/main.c01f4445.css.map",
+    "main.1eb5bf70.js.map": "/algo-test/static/js/main.1eb5bf70.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c01f4445.css",
+    "static/js/main.1eb5bf70.js"
+  ]
+}
