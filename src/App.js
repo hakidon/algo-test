@@ -53,7 +53,7 @@ class App extends Component {
         else {
             return (
                 <div className="App">
-                    <h1>Instrument Check</h1>
+                    <h1>Test Check</h1>
                     <button onClick={() => this.changePage('add', '')}>Add</button>
                     <button onClick={() => this.changePage('view_assign', '')}>Assign</button>
                     <button onClick={() => this.changePage('view_all', '')}>View</button>
