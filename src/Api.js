@@ -35,24 +35,29 @@ class Api extends Component {
         // choco:
         // 43M32JQKI5BU2L3K5AYJPJGSOPXOJ3GM57D3VCXHRA42BVHV6PBRQZ7DGI
 
-        const walletUser = 'UOUTANWCKCKCVGNERCTD5HJILD6JLAYRUQIN4IZWHW5PS4ZHGSJWHQIVUY'
+        const walletUser = '43M32JQKI5BU2L3K5AYJPJGSOPXOJ3GM57D3VCXHRA42BVHV6PBRQZ7DGI'
         var wallet = isAdmin ? walletAdmin : walletUser
 
 
         fetch(url)
             .then((result) => result.json())
             .then((result) => {
-                var records = [];
+                var records = []
+                var records_view = []
+                var records_owner = []
                 var av = []
+
 
                 if ({ render_type }.render_type === 'view_instrument') { //if view ownership 
                     result.transactions.forEach(element => {
-                        records.push(element);
+                        records_owner.push(element);
                     });
+                    this.setState({ data: records_owner })
+                    this.setState({ getData: true })
                 }
 
-                else if ({ render_type }.render_type === 'view_all' || { render_type }.render_type === 'view_assign') { //if view all 
-                    // console.log(result.transactions)
+                if ({ render_type }.render_type === 'view_assign' || { render_type }.render_type === 'view_all') {
+                    // fetch item all 
                     result.transactions.forEach((element, index, array) => {
                         // if (element["asset-config-transaction"])
                         //     return
@@ -62,14 +67,6 @@ class Api extends Component {
                         if (element["asset-transfer-transaction"].receiver === walletAdmin)
                             records.push(JSON.parse(atob(element.note)));
                     });
-
-                }
-
-                this.setState({ data: records })
-                this.setState({ getData: true })
-
-                if ({ render_type }.render_type === 'view_assign') {
-                    this.setState({ getData: false })
 
                     url =
                         'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/120764329/transactions?address=' + wallet // bob
@@ -103,6 +100,7 @@ class Api extends Component {
                                             }
                                         }
                                     }
+
                                 } else {
                                     hasReceive = true
                                     for (let i = 0; i < elem.length - 1; i++) {
@@ -120,8 +118,16 @@ class Api extends Component {
                                 if (hasReceive && !hasSend)
                                     av.push(instrument);
 
+                                if (hasReceive)
+                                    records_view.push(instrument)
+
                             });
-                            this.setState({ data: av })
+
+                            if ({ render_type }.render_type === 'view_assign')
+                                this.setState({ data: av })
+                            else
+                                this.setState({ data: records_view })
+
                             this.setState({ getData: true })
                         })
                 }
