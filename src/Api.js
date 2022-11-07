@@ -8,21 +8,22 @@ class Api extends Component {
     }
 
 
-    // Code is invoked after the component is mounted/inserted into the DOM tree.
     componentDidMount() {
         const _this = this;
         const { render_type } = _this.props
         var url
+
         if ({ render_type }.render_type === 'view_all' || { render_type }.render_type === 'view_assign') {
             url =
                 'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/120764329/transactions?address-role=sender&address=TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
         } else if ({ render_type }.render_type === 'view_instrument') {
             const { index } = _this.props
+            
             url =
                 'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/120764329/transactions?note-prefix=' + btoa({ index }.index)
         }
 
-        const isAdmin = false
+        const isAdmin = true
 
         const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
 
@@ -134,9 +135,11 @@ class Api extends Component {
             })
     }
 
+
     render() {
         const { data, getData } = this.state;
-        const { changePage, render_type } = this.props
+        const { render_type, navigation} = this.props
+        
         if (!{ getData }.getData)
             return <h5>Loading...</h5>
 
@@ -145,7 +148,7 @@ class Api extends Component {
 
         return (
             < div className="container" >
-                <Table tableData={data} changePage={changePage} render_type={render_type} />
+                <Table tableData={data} render_type={render_type} navigation={navigation}/>
             </div >
         )
     }

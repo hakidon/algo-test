@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { createSearchParams } from "react-router-dom";
 
 const TableHeader = (props) => {
     if (props.render_type === 'view_all') {
@@ -59,15 +60,28 @@ const TableBody = (props) => {
             )
         })
     } else if (props.render_type === 'view_all' || props.render_type === 'view_assign') {
-        let page = props.render_type === 'view_all'? 'view_instrument' : 'assign'
-        let page_txt = props.render_type === 'view_all'? 'View' : 'Assign'
+        let page = props.render_type === 'view_all' ? '/ViewInstrument' : '/Assign'
+        let page_txt = props.render_type === 'view_all' ? 'View' : 'Assign'
         rows = props.tableData.map((row, index) => {
             return (
                 <tr key={index}>
                     <td>{row.ins_id}</td>
                     <td>{row.ins_name}</td>
                     <td>{row.ins_type}</td>
-                    <td><button onClick={() => props.changePage(page, row.ins_id)}>{page_txt}</button></td>
+                    <td><button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            // alert('sd')
+                            props.navigation(
+                                {
+                                    pathname: page,
+                                    search: createSearchParams ({
+                                        id: row.ins_id
+                                    }).toString() 
+                                }
+                            );
+                        }}>{page_txt}</button></td>
                 </tr>
             )
         })
@@ -80,22 +94,27 @@ const TableBody = (props) => {
     }
 }
 
+
 class Table extends Component {
+
     render() {
-        const { tableData, changePage, render_type } = this.props
+        const { tableData, render_type, navigation } = this.props
         var button_page
         if ({ render_type }.render_type === 'view_all' || { render_type }.render_type === 'view_assign') {
-            button_page = ''
-        } else  {
-            button_page = 'view_all'  
-        } 
+            button_page = '/'
+        } else {
+            button_page = '/ViewAll'
+        }
         return (
+
+
             <div className="display">
                 <table>
                     <TableHeader render_type={render_type} />
-                    <TableBody tableData={tableData} changePage={changePage} render_type={render_type} />
+                    <TableBody tableData={tableData} render_type={render_type} navigation={navigation}/>
                 </table>
-                <button onClick={() => changePage({button_page}, '')}>Back</button>
+                {/* onClick={() => changePage({button_page}, '')} */}
+                <button onClick={() => navigation(button_page)}>Back</button>
             </div>
         )
     }
