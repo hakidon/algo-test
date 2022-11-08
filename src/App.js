@@ -1,27 +1,21 @@
 // import React, { Component } from 'react'
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate, useSearchParams} from "react-router-dom";
 
-import Main from './Main'
-import Api from './Api'
-import Add from './Add'
-import Assign from './Assign'
-import Detail from './Detail'
-import ViewAll from './ViewAll'
-import ViewAssign from './ViewAssign'
-import ViewInstrument from "./ViewInstrument";
-
+import {Main, Add, Assign, Detail, ViewAll, ViewAssign, ViewInstrument} from './Pages'
 
 export default function App() {
+    const navigate = useNavigate()
+    const [url_param] = useSearchParams()
 
     return (
         <Routes>
-            <Route path="/" element={<Main />} />
-            <Route path="ViewAll" element={ <ViewAll />} />
-            <Route path="ViewAssign" element={ <ViewAssign /> } />
-            <Route path="ViewInstrument" element={ <ViewInstrument /> } />
-            <Route path="Add" element={ <Add />} />
-            <Route path="Assign" element={ <Assign/>} />
-            <Route path="Detail" element={ <Detail/>} />
+            <Route path="/" element={<Main navigation={navigate}/>} />
+            <Route path="ViewAll" element={ <ViewAll navigation={navigate}/>} />
+            <Route path="ViewAssign" element={ <ViewAssign navigation={navigate}/> } />
+            <Route path="ViewInstrument" element={ <ViewInstrument get_index={url_param} navigation={navigate}/> } />
+            <Route path="Add" element={ <Add navigation={navigate}/>} />
+            <Route path="Assign" element={ <Assign navigation={navigate}/>} />
+            <Route path="Detail" element={ <Detail navigation={navigate}/>} />
             <Route path="*" element={<h1>404</h1>} />
         </Routes>
     );
