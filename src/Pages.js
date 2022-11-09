@@ -1,9 +1,11 @@
 import Api from './Api'
+import QRCode from 'react-qr-code'
+import { useState } from 'react';
+
+
 
 const Main = (props) => {
-
     return (
-
         <div className="App">
             <h1>Instrument Check</h1>
             <button
@@ -53,10 +55,37 @@ const ViewInstrument = (props) => {
 };
 
 const Add = (props) => {
+    const [instrument_id, set_instrument_id] = useState();
+    const [full_url, set_full_url] = useState();
+
+    const base_url = 'http://localhost:3000'
+    const app_url = '/algo-test/ViewInstrument?id='
+    const view_url = base_url + app_url
+
     return (
         <div className="add">
-            <h1>This is add page</h1>
+            {/* <h1>This is add page</h1> */}
+            <center>
+                <input
+                    type="text"
+                    onChange={(e) => set_instrument_id(e.target.value)}
+                    placeholder="Input instrument id here"
+                />
+
+            </center>
+
+            {full_url && (
+                <QRCode
+                    title="Instrument"
+                    value={full_url}
+                    bgColor='white'
+                    fgColor='black'
+                    size={300}
+                />
+            )}
+            <button onClick={() => set_full_url(view_url + instrument_id)}>Add</button>
             <button onClick={() => props.navigation('/')}>Back</button>
+
         </div>
     )
 };

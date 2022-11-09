@@ -51,6 +51,7 @@ const TableBody = (props) => {
         })
 
         rows = props.tableData.map((row, index) => {
+            console.log(row)
             return (
                 <tr key={index}>
                     {/* <td>{row.sender}</td> */}
