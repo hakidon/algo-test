@@ -11,6 +11,7 @@ class Api extends Component {
 
 
     componentDidMount() {
+        const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
         const asset_id = '121415136'
         const _this = this;
         const { render_type } = _this.props
@@ -18,7 +19,7 @@ class Api extends Component {
 
         if ({ render_type }.render_type === 'view_all' || { render_type }.render_type === 'view_assign') {
             url =
-                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address-role=sender&address=TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
+                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address-role=sender&address=' + walletAdmin
         } else if ({ render_type }.render_type === 'view_instrument') {
             const { index } = _this.props
             const base_txt = "serial_id:"
@@ -27,9 +28,8 @@ class Api extends Component {
                 'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?note-prefix=' + btoa(base_txt + { index }.index)
         }
 
-        const isAdmin = true
+        const isAdmin = false
 
-        const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
 
         // alice:
         // TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ
@@ -40,7 +40,7 @@ class Api extends Component {
         // choco:
         // 43M32JQKI5BU2L3K5AYJPJGSOPXOJ3GM57D3VCXHRA42BVHV6PBRQZ7DGI
 
-        const walletUser = 'UOUTANWCKCKCVGNERCTD5HJILD6JLAYRUQIN4IZWHW5PS4ZHGSJWHQIVUY'
+        const walletUser = '43M32JQKI5BU2L3K5AYJPJGSOPXOJ3GM57D3VCXHRA42BVHV6PBRQZ7DGI'
         var wallet = isAdmin ? walletAdmin : walletUser
 
 
@@ -77,8 +77,8 @@ class Api extends Component {
                                 records.push(json_note)
                             } catch (e) {
                                 let dist_elem = atob(element.note).split('distributer:')[1]
-                                if (dist_elem) dist.push(dist_elem)
-
+                                if (dist_elem)
+                                    dist.push(dist_elem)
                                 // let temp_dist = atob(element.note).split(',')
                                 // let first_index = temp_dist[0]
                                 // let last_index = temp_dist[temp_dist.length - 1]
@@ -91,7 +91,6 @@ class Api extends Component {
                                 // temp_dist.forEach(elem => {
                                 //     dist.push(elem)
                                 // });
-
                             }
                             this.setState({ data_distributer: dist })
                         }
@@ -165,8 +164,10 @@ class Api extends Component {
 
 
     render() {
-        const { data, getData } = this.state;
+
+        const { data, getData, data_distributer } = this.state;
         const { render_type, navigation } = this.props
+
 
         if (!{ getData }.getData)
             return <h5>Loading...</h5>
