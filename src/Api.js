@@ -18,16 +18,16 @@ class Api extends Component {
 
         if ({ render_type }.render_type === 'view_all' || { render_type }.render_type === 'view_assign') {
             url =
-                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/'+asset_id+'/transactions?address-role=sender&address=TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
+                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address-role=sender&address=TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
         } else if ({ render_type }.render_type === 'view_instrument') {
             const { index } = _this.props
             const base_txt = "serial_id:"
 
             url =
-                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/'+asset_id+'/transactions?note-prefix=' + btoa(base_txt + { index }.index)
+                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?note-prefix=' + btoa(base_txt + { index }.index)
         }
 
-        const isAdmin = false
+        const isAdmin = true
 
         const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
 
@@ -76,21 +76,21 @@ class Api extends Component {
                                 json_note = JSON.parse(atob(element.note))
                                 records.push(json_note)
                             } catch (e) {
-                                    let dist_elem = atob(element.note).split('distributer:')[1]
-                                    if(dist_elem) dist.push(dist_elem) 
+                                let dist_elem = atob(element.note).split('distributer:')[1]
+                                if (dist_elem) dist.push(dist_elem)
 
-                                    // let temp_dist = atob(element.note).split(',')
-                                    // let first_index = temp_dist[0]
-                                    // let last_index = temp_dist[temp_dist.length - 1]
-                                    // if ((first_index === 'start' && last_index === 'end') || (first_index === 'cont' && last_index === 'end')) {
-                                    //     dist_end = true
-                                    // }
-                                    // temp_dist.shift()
-                                    // temp_dist.pop()
+                                // let temp_dist = atob(element.note).split(',')
+                                // let first_index = temp_dist[0]
+                                // let last_index = temp_dist[temp_dist.length - 1]
+                                // if ((first_index === 'start' && last_index === 'end') || (first_index === 'cont' && last_index === 'end')) {
+                                //     dist_end = true
+                                // }
+                                // temp_dist.shift()
+                                // temp_dist.pop()
 
-                                    // temp_dist.forEach(elem => {
-                                    //     dist.push(elem)
-                                    // });
+                                // temp_dist.forEach(elem => {
+                                //     dist.push(elem)
+                                // });
 
                             }
                             this.setState({ data_distributer: dist })
@@ -98,7 +98,7 @@ class Api extends Component {
                     });
 
                     url =
-                        'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/'+asset_id+'/transactions?address=' + wallet // bob
+                        'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address=' + wallet // bob
 
                     fetch(url)
                         .then((result) => result.json())
@@ -112,7 +112,7 @@ class Api extends Component {
                                 if (!isAdmin) {
                                     //Check receive 
                                     for (let i = 0; i < elem.length - 1; i++) {
-                                        if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) { 
+                                        if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) {
                                             if (elem[i]["asset-transfer-transaction"].receiver === wallet) {
                                                 hasReceive = true
                                                 break
@@ -171,8 +171,18 @@ class Api extends Component {
         if (!{ getData }.getData)
             return <h5>Loading...</h5>
 
-        if (!{ data }.data.length)
+        if (!{ data }.data.length) {
+            if ({ render_type }.render_type === 'view_instrument') {
+                return (
+                    < div className="container" >
+                        <Table tableData={[]} render_type={render_type} navigation={navigation} />
+                    </div >
+                )
+            }
+
             return <h5>No data fetch!</h5>
+        }
+
 
         return (
             < div className="container" >

@@ -36,30 +36,32 @@ const TableHeader = (props) => {
 }
 
 const TableBody = (props) => {
-    var first_row
     var rows
+    const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
+
+    const first_row = () => {
+        return (
+            <tr key={0}>
+                <td>{walletAdmin}</td>
+            </tr>
+        )
+    }
+
     //first row
     if (props.render_type === 'view_instrument') {
-        // console.log(props.tableData)
 
-        first_row = props.tableData.slice(0, 1).map((row, index) => {
-            return (
-                <tr key={index}>
-                    <td>{row.sender}</td>
-                </tr>
-            )
-        })
+        if (props.tableData) {
+            rows = props.tableData.map((row, index) => {
+                return (
+                    <tr key={index}>
+                        {/* <td>{row.sender}</td> */}
+                        <td>{row["asset-transfer-transaction"].receiver}</td>
+                        {/* <td><button onClick={() => props.changePage("view", row.ins_id)}>View</button></td> */}
+                    </tr>
+                )
+            })
+        }
 
-        rows = props.tableData.map((row, index) => {
-            console.log(row)
-            return (
-                <tr key={index}>
-                    {/* <td>{row.sender}</td> */}
-                    <td>{row["asset-transfer-transaction"].receiver}</td>
-                    {/* <td><button onClick={() => props.changePage("view", row.ins_id)}>View</button></td> */}
-                </tr>
-            )
-        })
     } else if (props.render_type === 'view_all' || props.render_type === 'view_assign') {
         let page = props.render_type === 'view_all' ? '/ViewInstrument' : '/Assign'
         let page_txt = props.render_type === 'view_all' ? 'View' : 'Assign'
@@ -71,15 +73,12 @@ const TableBody = (props) => {
                     <td>{row.ins_type}</td>
                     <td><button
                         onClick={() => {
-                            // api call
-                            // change to the about page
-                            // alert('sd')
                             props.navigation(
                                 {
                                     pathname: page,
-                                    search: createSearchParams ({
+                                    search: createSearchParams({
                                         id: row.ins_id
-                                    }).toString() 
+                                    }).toString()
                                 }
                             );
                         }}>{page_txt}</button></td>
@@ -88,11 +87,13 @@ const TableBody = (props) => {
         })
     }
 
-    if (props.render_type === 'view_all' || props.render_type === 'view_assign') {
-        return <tbody>{rows}</tbody>
-    } else if (props.render_type === 'view_instrument') {
-        return <tbody>{first_row}{rows}</tbody>
-    }
+    if (!props.tableData)
+        return <tbody>{first_row()}</tbody>
+
+    if (props.render_type === 'view_instrument')
+        return <tbody>{first_row()}{rows}</tbody>
+
+    return <tbody>{rows}</tbody>
 }
 
 
@@ -112,7 +113,7 @@ class Table extends Component {
             <div className="display">
                 <table>
                     <TableHeader render_type={render_type} />
-                    <TableBody tableData={tableData} render_type={render_type} navigation={navigation}/>
+                    <TableBody tableData={tableData} render_type={render_type} navigation={navigation} />
                 </table>
                 {/* onClick={() => changePage({button_page}, '')} */}
                 <button onClick={() => navigation(button_page)}>Back</button>
