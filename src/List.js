@@ -36,6 +36,11 @@ class Li extends Component {
     render() {
         const { dataIns, roles, navigation } = this.props
 
+        if (!dataIns) {
+            return (
+               <h1>Please wait loading</h1>
+            )  
+        }
         if (roles) {
             return (
                 <div className="display">

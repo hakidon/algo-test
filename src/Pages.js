@@ -2,6 +2,8 @@ import Api from './Api'
 import Table from './Table'
 import Li from './List'
 import React, { Component } from 'react'
+import { createSearchParams } from "react-router-dom";
+
 
 import * as buffer from "buffer";
 
@@ -38,155 +40,97 @@ const algodClient = new algosdk.Algodv2(
 const encoder = new TextEncoder();
 
 
-class Main extends Component {
-    state = {
-        inputWalletTemp: ''
-        }
-
-    render() {
-        let {inputWalletTemp} = this.state
-        const { setWallet, setDataAll, setDataDistributer,  navigation } = this.props
-
-        //Ridirect function
-        const setRedirect = () => {
-            setWallet(inputWalletTemp)
-            navigation('/MainMenu')
-        }
-
-        return (
-            <div className="main">
-                <Api setDataAll={setDataAll} setDataDistributer={setDataDistributer} />
-
-                <h1>This is login page</h1>
-                <center>
-                    <input
-                        type="text"
-                        onChange={(e) => this.setState({ inputWalletTemp: e.target.value })}
-                        placeholder="Insert wallet"
-                    />
-                </center>
-                {/* Set user wallet */}
-                <button onClick={() => setRedirect()}>login</button>
-            </div >
-        )
-    }
-
-};
-
 // class Main extends Component {
 //     state = {
-//         inputWalletTemp: '',
-//         account: null,
-//         signedTx: null,
-//         challenge: ''
-//     }
-
-//     render() {
-//         let { inputWalletTemp, account, signedTx, challenge } = this.state
-
-
-//         const connect = async () => {
-//             const [acc] = await myAlgoConnect.connect({
-//                 shouldSelectOneAccount: true
-//             })
-
-//             this.setState({ account: acc })
+//         inputWalletTemp: ''
 //         }
 
-//         const updateChallenge = (e) => {
-//             this.setState({ challenge: e.target.value })
-//             this.setState({ signedTx: "" })
-//         };
+//     render() {
+//         let {inputWalletTemp} = this.state
+//         const { setWallet, setDataAll, setDataDistributer,  navigation } = this.props
 
-//         const sign = async () => {
-//             document.getElementById("status").innerHTML = "Transaction Status: ";
-//             try {
-//                 const params = await algodClient.getTransactionParams().do();
-//                 const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-//                     suggestedParams: params,
-//                     from: account.address,
-//                     to: account.address,
-//                     assetIndex: 120764329,
-//                     amount: 1,
-//                     note: encoder.encode(challenge)
-//                 });
-
-//                 const stx = await myAlgoConnect.signTransaction(txn.toByte());
-//                 const b64Stx = Buffer.from(stx.blob).toString("base64");
-//                 const response = await algodClient.sendRawTransaction(stx.blob).do();
-
-//                 this.setState({ signedTx: b64Stx })
-//                 document.getElementById("status").innerHTML =
-//                     "Transaction Status: Succesful";
-//             } catch (err) {
-//                 console.error(err);
-//                 document.getElementById("status").innerHTML =
-//                     "Transaction Status: Failed";
-//             }
-//         };
-
-//         const assign = async () => {
-//             document.getElementById("status").innerHTML = "Transaction Status: ";
-//             try {
-//                 let recieverAddress = prompt("Please enter receiver wallet address:", "");
-//                 const params = await algodClient.getTransactionParams().do();
-//                 const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-//                     suggestedParams: params,
-//                     from: account.address,
-//                     to: recieverAddress,
-//                     assetIndex: 120764329,
-//                     amount: 1,
-//                     note: encoder.encode(challenge)
-//                 });
-
-//                 const stx = await myAlgoConnect.signTransaction(txn.toByte());
-//                 const b64Stx = Buffer.from(stx.blob).toString("base64");
-//                 //const txBytes = Buffer.from(txn.toByte(), 'base64')
-//                 const response = await algodClient.sendRawTransaction(stx.blob).do();
-//                 console.log(response)
-//                 this.setState({ signedTx: b64Stx })
-//                 document.getElementById("status").innerHTML =
-//                     "Transaction Status: Succesful";
-//             } catch (err) {
-//                 console.error(err);
-//                 document.getElementById("status").innerHTML =
-//                     "Transaction Status: Failed";
-//             }
-//         };
-
-
+//         //Ridirect function
+//         const setRedirect = () => {
+//             setWallet(inputWalletTemp)
+//             navigation('/MainMenu')
+//         }
 
 //         return (
-//             <div className="App">
-//                 <h1>Signature verification</h1>
-//                 <button disabled={account} onClick={connect}>
-//                     connect
-//                 </button>
+//             <div className="main">
+//                 <Api setDataAll={setDataAll} setDataDistributer={setDataDistributer} />
 
-//                 {account && (
-//                     <>
-//                         <h2>Connected Account Name: {account.name}</h2>
-//                         <h2>Connected Address: {account.address}</h2>
-
-//                         <h2>Deploy Here</h2>
-//                         <input onChange={updateChallenge} value={challenge} />
-//                         <button disabled={!challenge} onClick={sign}>
-//                             Deploy
-//                         </button>
-
-//                         <h2>Assign here</h2>
-//                         <input onChange={updateChallenge} value={challenge} />
-//                         <button disabled={!challenge} onClick={assign}>
-//                             Assign
-//                         </button>
-//                         <h2 id="status">Transaction Status: </h2>
-//                     </>
-//                 )}
-//             </div>
+//                 <h1>This is login page</h1>
+//                 <center>
+//                     <input
+//                         type="text"
+//                         onChange={(e) => this.setState({ inputWalletTemp: e.target.value })}
+//                         placeholder="Insert wallet"
+//                     />
+//                 </center>
+//                 {/* Set user wallet */}
+//                 <button onClick={() => setRedirect()}>login</button>
+//             </div >
 //         )
 //     }
 
 // };
+
+class Main extends Component {
+
+    state = {
+        inputWalletTemp: '',
+        account: null,
+        signedTx: null,
+        challenge: ''
+    }
+
+    render() {
+        let { inputWalletTemp, account, signedTx, challenge } = this.state
+        const { setWallet, setDataAll, setDataDistributer, navigation } = this.props
+
+        const connect = async () => {
+            const [acc] = await myAlgoConnect.connect({
+                shouldSelectOneAccount: true
+            })
+
+            setWallet(acc.address)
+            navigation('/MainMenu')
+        }
+
+        return (
+
+            <div className="App">
+                <Api setDataAll={setDataAll} setDataDistributer={setDataDistributer} />
+
+                <h1>Login account</h1>
+                <button disabled={account} onClick={connect}>
+                    Connect
+                </button>
+
+                {/* {account && (
+                    <>
+                        <h2>Connected Account Name: {account.name}</h2>
+                        <h2>Connected Address: {account.address}</h2>
+
+                        <h2>Deploy Here</h2>
+                        <input onChange={updateChallenge} value={challenge} />
+                        <button disabled={!challenge} onClick={sign}>
+                            Deploy
+                        </button>
+
+                        <h2>Assign here</h2>
+                        <input onChange={updateChallenge} value={challenge} />
+                        <button disabled={!challenge} onClick={assign}>
+                            Assign
+                        </button>
+                        <h2 id="status">Transaction Status: </h2>
+                    </>
+                )} */}
+            </div>
+        )
+    }
+
+};
 
 class MainMenu extends Component {
 
@@ -347,15 +291,114 @@ const ViewInstrument = (props) => {
             <Li dataIns={props.dataIns} roles={props.roles} navigation={props.navigation} />
         </div >
     )
+
+    // if (!props.dataIns || props.lastIndex !== props.index) {
+    //     props.setLastIndex(props.index)
+    //     return ( 
+    //         < div className="container" >
+    //             <Api dataIns={props.dataIns} setDataIns={props.setDataIns} index={props.index} navigation={props.navigate} />
+    //         </div >
+    //     )
+    // }
+
+    // return (
+    //     < div className="container" >
+    //         <Li dataIns={props.dataIns} roles={props.roles} navigation={props.navigation} />
+    //     </div >
+    // )
 };
 
-const Add = (props) => {
-    const [instrument_id, set_instrument_id] = useState();
-    const [full_url, set_full_url] = useState();
-
+const Qr = (props) => {
+    const index = props.index
     const base_url = 'http://localhost:3000'
     const app_url = '/algo-test/ViewInstrument?id='
-    const view_url = base_url + app_url
+    const view_url = base_url + app_url + index
+
+    return (
+        <div className="detail">
+            <QRCode
+                title="Instrument"
+                value={view_url}
+                bgColor='white'
+                fgColor='black'
+                size={300}
+            />
+            <button onClick={() => props.navigation('/MainMenu')}>Back</button>
+        </div>
+    )
+};
+
+
+const Add = (props) => {
+    const wallet = props.wallet
+
+    // let { account, signedTx, challenge } = this.state
+
+    let [instrument, setInstrument] = useState()
+    let [signedTx, setSignedTx] = useState()
+
+    const sign = async () => {
+        try {
+            const params = await algodClient.getTransactionParams().do();
+            const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+                suggestedParams: params,
+                from: wallet,
+                to: wallet,
+                assetIndex: 120764329,
+                amount: 1,
+                note: encoder.encode(instrument)
+            });
+
+            const stx = await myAlgoConnect.signTransaction(txn.toByte());
+            const b64Stx = Buffer.from(stx.blob).toString("base64");
+            const response = await algodClient.sendRawTransaction(stx.blob).do();
+            setSignedTx(b64Stx)
+            alert("success")
+            props.navigation(
+                {
+                    pathname: 'Qr',
+                    search: createSearchParams({
+                        id: instrument
+                    }).toString()
+                }
+            )
+        } catch (err) {
+            console.error(err);
+            alert("failed")
+        }
+    };
+
+    // const assign = async () => {
+    //     document.getElementById("status").innerHTML = "Transaction Status: ";
+    //     try {
+    //         let recieverAddress = prompt("Please enter receiver wallet address:", "");
+    //         const params = await algodClient.getTransactionParams().do();
+    //         const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+    //             suggestedParams: params,
+    //             from: account.address,
+    //             to: recieverAddress,
+    //             assetIndex: 120764329,
+    //             amount: 1,
+    //             note: encoder.encode(challenge)
+    //         });
+
+    //         const stx = await myAlgoConnect.signTransaction(txn.toByte());
+    //         const b64Stx = Buffer.from(stx.blob).toString("base64");
+    //         //const txBytes = Buffer.from(txn.toByte(), 'base64')
+    //         const response = await algodClient.sendRawTransaction(stx.blob).do();
+    //         console.log(response)
+    //         this.setState({ signedTx: b64Stx })
+    //         document.getElementById("status").innerHTML =
+    //             "Transaction Status: Succesful";
+    //     } catch (err) {
+    //         console.error(err);
+    //         document.getElementById("status").innerHTML =
+    //             "Transaction Status: Failed";
+    //     }
+    // };
+
+    // const [instrument_id, set_instrument_id] = useState();
+    // const [full_url, set_full_url] = useState();
 
     return (
         <div className="add">
@@ -363,27 +406,20 @@ const Add = (props) => {
             <center>
                 <input
                     type="text"
-                    onChange={(e) => set_instrument_id(e.target.value)}
+                    onChange={(e) => setInstrument(e.target.value)}
                     placeholder="Input instrument id here"
                 />
 
             </center>
 
-            {full_url && (
-                <QRCode
-                    title="Instrument"
-                    value={full_url}
-                    bgColor='white'
-                    fgColor='black'
-                    size={300}
-                />
-            )}
-            <button onClick={() => set_full_url(view_url + instrument_id)}>Add</button>
-            <button onClick={() => props.navigation('/MainMenu')}>Back</button>
+            {/* <button onClick={() => set_full_url(view_url + instrument_id)}>Add</button> */}
+            <button onClick={() => sign()}>Add</button>
 
+            <button onClick={() => props.navigation('/MainMenu')}>Back</button>
         </div>
     )
 };
+
 
 const Assign = (props) => {
     return (
@@ -394,6 +430,7 @@ const Assign = (props) => {
         </div>
     )
 };
+
 
 const Detail = (props) => {
     return (
@@ -406,4 +443,4 @@ const Detail = (props) => {
 };
 
 
-export {  Main, MainMenu, ViewAll, ViewAssign, ViewInstrument, Add, Assign, Detail };
+export { Main, MainMenu, ViewAll, ViewAssign, ViewInstrument, Add, Qr, Assign, Detail };
