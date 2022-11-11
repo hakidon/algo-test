@@ -1,5 +1,10 @@
 import Api from './Api'
 import Table from './Table'
+import Li from './List'
+import React, { Component } from 'react'
+
+import * as buffer from "buffer";
+
 // import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400'
 // import './layout/styles/font-awesome.min.css'
 // import './layout/styles/bootstrap.min.css'
@@ -10,8 +15,134 @@ import Table from './Table'
 
 import QRCode from 'react-qr-code'
 import { useState, useEffect } from 'react'
-// import algosdk from "algosdk"
-// import MyAlgoConnect from "@randlabs/myalgo-connect"
+import algosdk from "algosdk"
+import MyAlgoConnect from "@randlabs/myalgo-connect"
+
+window.Buffer = buffer.Buffer;
+var isDistributer = false
+var isAdmin = false
+var isUser = false
+
+const reset = () => {
+    isDistributer = false
+    isAdmin = false
+    isUser = false
+}
+
+//Algo connect ----- start
+const myAlgoConnect = new MyAlgoConnect();
+const algodClient = new algosdk.Algodv2(
+    "",
+    "https://node.testnet.algoexplorerapi.io",
+    ""
+);
+const encoder = new TextEncoder();
+
+export default function Apptest() {
+    const [account, setAccount] = useState(null);
+    const [signedTx, setSignedTx] = useState(null);
+    const [challenge, setChallange] = useState("");
+    const connect = async () => {
+        const [acc] = await myAlgoConnect.connect({
+            shouldSelectOneAccount: true
+        });
+
+        setAccount(acc);
+    };
+    const updateChallenge = (e) => {
+        setChallange(e.target.value);
+        setSignedTx("");
+    };
+    const sign = async () => {
+        document.getElementById("status").innerHTML = "Transaction Status: ";
+        try {
+            const params = await algodClient.getTransactionParams().do();
+            const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+                suggestedParams: params,
+                from: account.address,
+                to: account.address,
+                assetIndex: 120764329,
+                amount: 1,
+                note: encoder.encode(challenge)
+            });
+
+            const stx = await myAlgoConnect.signTransaction(txn.toByte());
+            const b64Stx = Buffer.from(stx.blob).toString("base64");
+            //const txBytes = Buffer.from(txn.toByte(), 'base64')
+            const response = await algodClient.sendRawTransaction(stx.blob).do();
+
+            setSignedTx(b64Stx);
+            //setSignedTx(response);
+            document.getElementById("status").innerHTML =
+                "Transaction Status: Succesful";
+        } catch (err) {
+            console.error(err);
+            document.getElementById("status").innerHTML =
+                "Transaction Status: Failed";
+        }
+    };
+
+    const assign = async () => {
+        document.getElementById("status").innerHTML = "Transaction Status: ";
+        try {
+            let recieverAddress = prompt("Please enter receiver wallet address:", "");
+            const params = await algodClient.getTransactionParams().do();
+            const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+                suggestedParams: params,
+                from: account.address,
+                to: recieverAddress,
+                assetIndex: 120764329,
+                amount: 1,
+                note: encoder.encode(challenge)
+            });
+
+            const stx = await myAlgoConnect.signTransaction(txn.toByte());
+            const b64Stx = Buffer.from(stx.blob).toString("base64");
+            //const txBytes = Buffer.from(txn.toByte(), 'base64')
+            const response = await algodClient.sendRawTransaction(stx.blob).do();
+            setSignedTx(b64Stx);
+            document.getElementById("status").innerHTML =
+                "Transaction Status: Succesful";
+        } catch (err) {
+            console.error(err);
+            document.getElementById("status").innerHTML =
+                "Transaction Status: Failed";
+        }
+    };
+
+    return (
+        <div className="App">
+            <h1>Signature verification</h1>
+            <button disabled={account} onClick={connect}>
+                connect
+            </button>
+
+            {account && (
+                <>
+                    <h2>Connected Account Name: {account.name}</h2>
+                    <h2>Connected Address: {account.address}</h2>
+
+                    <h2>Deploy Here</h2>
+                    <input onChange={updateChallenge} value={challenge} />
+                    <button disabled={!challenge} onClick={sign}>
+                        Deploy
+                    </button>
+
+                    <h2>Assign here</h2>
+                    <input onChange={updateChallenge} value={challenge} />
+                    <button disabled={!challenge} onClick={assign}>
+                        Assign
+                    </button>
+                    <h2 id="status">Transaction Status: </h2>
+                </>
+            )}
+        </div>
+    );
+}
+
+//Algo connect ----- end
+
+
 
 const Main = (props) => {
     var [inputWallet, setInputWallet] = useState();
@@ -40,146 +171,142 @@ const Main = (props) => {
     )
 };
 
-const MainMenu = (props) => {
-    const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ' //Manufacter
+class MainMenu extends Component {
 
-    let isDistributer = false
-    let isAdmin = false
-    let isUser = false
-
-    if (props.wallet) {
-        if (props.wallet === walletAdmin)
-            isAdmin = true
-        else {
-            props.dataDistributer.forEach(distributer => {
-                if (props.wallet === distributer)
-                    isDistributer = true
-            })
+    componentDidMount () {
+        if (!this.props.wallet) {
+            this.props.setWallet('')
+            this.props.navigation('/')
+            return 
         }
-        if (isDistributer || isAdmin)
-            isUser = true
-    }
 
-    //Redirect if no wallet
-    useEffect(() => {
-        if (!props.wallet)
-            props.navigation('/')
-        else {
-            if (!isUser) {
-                alert('Account has not been registered yet!')
-                props.navigation('/')
+        if (!isUser) {
+            alert('Account has not been registered yet!')
+            this.props.navigation('/')
+            return
+        }
+    }
+    render() {
+        const { wallet, setWallet, dataDistributer, dataAll, dataView, setDataView, setDataAssign, navigation } = this.props
+        const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ' //Manufacter
+
+        if (wallet) {
+            if (wallet === walletAdmin)
+                isAdmin = true
+            else {
+                dataDistributer.forEach(distributer => {
+                    if (wallet === distributer)
+                        isDistributer = true
+                })
             }
-        }    
-    }, [])
+            if (isDistributer || isAdmin)
+                isUser = true
+        }
+
+        if (!dataAll) {
+            return (
+                <div className="App">
+                    <h1>Loading</h1>
+                </div>
+            )
+        }
+
+        if (isAdmin) {
+            return (
+                <div className="App">
+                    <Api wallet={wallet} dataAll={dataAll} dataView={dataView} setDataView={setDataView} setDataAssign={setDataAssign} />
+
+                    <h1>Instrument Check (Admin) </h1>
+                    <button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            navigation('/Add')
+                        }}
+                    >Add</button>
+
+                    <button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            navigation('/ViewAssign');
+                        }}
+                    >Assign</button>
+
+                    <button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            navigation('/ViewAll');
+                        }}
+                    >View</button>
+
+                    <button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            setWallet('')
+                            setDataView('')
+                            setDataAssign('')
+                            reset()
+                            navigation('/');
+                        }}
+                    >Logout</button>
+                </div>
+            )
+        }
+
+        if (isDistributer) {
+            return (
+                <div className="App">
+                    <Api wallet={wallet} dataAll={dataAll} dataView={dataView} setDataView={setDataView} setDataAssign={setDataAssign} />
+
+                    <h1>Instrument Check (Distributer)</h1>
+                    <button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            navigation('/ViewAssign');
+                        }}
+                    >Assign</button>
+
+                    <button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            navigation('/ViewAll');
+                        }}
+                    >View</button>
+
+                    <button
+                        onClick={() => {
+                            // api call
+                            // change to the about page
+                            setWallet('')
+                            setDataView('')
+                            setDataAssign('')
+                            reset()
+                            navigation('/');
+                        }}
+                    >Logout</button>
+                </div>
+            )
+        }
 
 
-    if (!props.wallet) {
-        return (
-            <div>
-                <h5>
-                    Improper redirect detected! Please login.
-                </h5>
-            <button
-                onClick={() => {
-                    // api call
-                    // change to the about page
-                    props.setWallet('')
-                    props.navigation('/');
-                }}
-            >Login</button>
-        </div>
-        )
     }
-
-    if (!props.dataAll) {
-        return (
-            <div className="App">
-                <h1>Loading</h1>
-            </div>
-        )
-    }
-
-    if (isAdmin) {
-        return (
-            <div className="App">
-                <Api wallet={props.wallet} dataAll={props.dataAll} dataView={props.dataView} setDataView={props.setDataView} setDataAssign={props.setDataAssign} />
-
-                <h1>Instrument Check (Admin) </h1>
-                <button
-                    onClick={() => {
-                        // api call
-                        // change to the about page
-                        props.navigation('/Add')
-                    }}
-                >Add</button>
-
-                <button
-                    onClick={() => {
-                        // api call
-                        // change to the about page
-                        props.navigation('/ViewAssign');
-                    }}
-                >Assign</button>
-
-                <button
-                    onClick={() => {
-                        // api call
-                        // change to the about page
-                        props.navigation('/ViewAll');
-                    }}
-                >View</button>
-
-                <button
-                    onClick={() => {
-                        // api call
-                        // change to the about page
-                        props.setWallet('')
-                        props.navigation('/');
-                    }}
-                >Logout</button>
-            </div>
-        )
-    }
-
-    if (isDistributer) {
-        return (
-            <div className="App">
-                <Api wallet={props.wallet} dataAll={props.dataAll} dataView={props.dataView} setDataView={props.setDataView} setDataAssign={props.setDataAssign} />
-
-                <h1>Instrument Check (Distributer)</h1>
-                <button
-                    onClick={() => {
-                        // api call
-                        // change to the about page
-                        props.navigation('/ViewAssign');
-                    }}
-                >Assign</button>
-
-                <button
-                    onClick={() => {
-                        // api call
-                        // change to the about page
-                        props.navigation('/ViewAll');
-                    }}
-                >View</button>
-
-                <button
-                    onClick={() => {
-                        // api call
-                        // change to the about page
-                        props.setWallet('')
-                        props.navigation('/');
-                    }}
-                >Logout</button>
-            </div>
-        )
-    }
-
-
 };
 
 
 const ViewAll = (props) => {
+    if (isUser) {
+        return (
+            < div className="container" >
+                <Table dataView={props.dataView} roles='user' navigation={props.navigation} />
+            </div >
+        )
+    }
+
     return (
         < div className="container" >
             <Table dataView={props.dataView} navigation={props.navigation} />
@@ -200,7 +327,7 @@ const ViewInstrument = (props) => {
         < div className="container" >
             <Api dataIns={props.dataIns} setDataIns={props.setDataIns} index={props.index} navigation={props.navigate} />
 
-            {/* <Table dataIns={props.dataIns} navigation={props.navigation} /> */}
+            <Li dataIns={props.dataIns} roles={props.roles} navigation={props.navigation} />
         </div >
     )
 };
@@ -262,4 +389,4 @@ const Detail = (props) => {
 };
 
 
-export { Main, MainMenu, ViewAll, ViewAssign, ViewInstrument, Add, Assign, Detail };
+export { Apptest, Main, MainMenu, ViewAll, ViewAssign, ViewInstrument, Add, Assign, Detail };
