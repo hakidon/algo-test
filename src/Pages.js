@@ -144,40 +144,48 @@ export default function Apptest() {
 
 
 
-const Main = (props) => {
-    var [inputWallet, setInputWallet] = useState();
+class Main extends Component {
+    state = {
+        inputWalletTemp: ''
+        }
 
-    //Ridirect function
-    const setRedirect = (inputWallet) => {
-        props.setWallet(inputWallet)
-        props.navigation('/MainMenu')
+    render() {
+        let {inputWalletTemp} = this.state
+        const { setWallet, setDataAll, setDataDistributer,  navigation } = this.props
+
+        //Ridirect function
+        const setRedirect = () => {
+            setWallet(inputWalletTemp)
+            navigation('/MainMenu')
+        }
+
+        return (
+            <div className="main">
+                <Api setDataAll={setDataAll} setDataDistributer={setDataDistributer} />
+
+                <h1>This is login page</h1>
+                <center>
+                    <input
+                        type="text"
+                        onChange={(e) => this.setState({ inputWalletTemp: e.target.value })}
+                        placeholder="Insert wallet"
+                    />
+                </center>
+                {/* Set user wallet */}
+                <button onClick={() => setRedirect()}>login</button>
+            </div >
+        )
     }
 
-    return (
-        <div className="main">
-            <Api setDataAll={props.setDataAll} setDataDistributer={props.setDataDistributer} />
-
-            <h1>This is login page</h1>
-            <center>
-                <input
-                    type="text"
-                    onChange={(e) => setInputWallet(e.target.value)}
-                    placeholder="Insert wallet"
-                />
-            </center>
-            {/* Set user wallet */}
-            <button onClick={() => setRedirect(inputWallet)}>login</button>
-        </div >
-    )
 };
 
 class MainMenu extends Component {
 
-    componentDidMount () {
+    componentDidMount() {
         if (!this.props.wallet) {
             this.props.setWallet('')
             this.props.navigation('/')
-            return 
+            return
         }
 
         if (!isUser) {
