@@ -1,35 +1,12 @@
-import React, { Component } from 'react'
-// import { json } from 'react-router-dom';
-import Table from './Table'
+import { Component } from 'react'
 
 class Api extends Component {
-    state = {
-        data: [],
-        data_distributer: [],
-        getData: false
-    }
-
 
     componentDidMount() {
-        const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
-        const asset_id = '121415136'
-        const _this = this;
-        const { render_type } = _this.props
-        var url
-
-        if ({ render_type }.render_type === 'view_all' || { render_type }.render_type === 'view_assign') {
-            url =
-                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address-role=sender&address=' + walletAdmin
-        } else if ({ render_type }.render_type === 'view_instrument') {
-            const { index } = _this.props
-            const base_txt = "serial_id:"
-
-            url =
-                'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?note-prefix=' + btoa(base_txt + { index }.index)
-        }
-
-        const isAdmin = false
-
+        const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ' //Manufacter
+        const asset_id = '121415136' //Instrument token
+        const wallet = this.props.wallet
+        const index = this.props.index
 
         // alice:
         // TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ
@@ -40,157 +17,131 @@ class Api extends Component {
         // choco:
         // 43M32JQKI5BU2L3K5AYJPJGSOPXOJ3GM57D3VCXHRA42BVHV6PBRQZ7DGI
 
-        const walletUser = '43M32JQKI5BU2L3K5AYJPJGSOPXOJ3GM57D3VCXHRA42BVHV6PBRQZ7DGI'
-        var wallet = isAdmin ? walletAdmin : walletUser
+        // irfan:
+        // YL4XXE77R6O5B2X4EM2MGABN47SSF6G6YDDPXMKNUIZJGUSOWWBF2Y5POM
 
-
-        fetch(url)
-            .then((result) => result.json())
-            .then((result) => {
-                var records = []
-                var dist = []
-                var records_view = []
-                var records_owner = []
-                var av = []
-
-
-                if ({ render_type }.render_type === 'view_instrument') { //if view ownership 
-                    result.transactions.forEach(element => {
-                        records_owner.push(element);
-                    });
-                    this.setState({ data: records_owner })
-                    this.setState({ getData: true })
-                }
-
-                if ({ render_type }.render_type === 'view_assign' || { render_type }.render_type === 'view_all') {
-                    // fetch item all 
-                    result.transactions.forEach((element, index, array) => {
-                        // if (element["asset-config-transaction"])
-                        //     return
-                        if (index === (array.length - 1))
-                            return
-
-                        if (element["asset-transfer-transaction"].receiver === walletAdmin) {
-                            let json_note
-                            try {
-                                json_note = JSON.parse(atob(element.note))
-                                records.push(json_note)
-                            } catch (e) {
-                                let dist_elem = atob(element.note).split('distributer:')[1]
-                                if (dist_elem)
-                                    dist.push(dist_elem)
-                                // let temp_dist = atob(element.note).split(',')
-                                // let first_index = temp_dist[0]
-                                // let last_index = temp_dist[temp_dist.length - 1]
-                                // if ((first_index === 'start' && last_index === 'end') || (first_index === 'cont' && last_index === 'end')) {
-                                //     dist_end = true
-                                // }
-                                // temp_dist.shift()
-                                // temp_dist.pop()
-
-                                // temp_dist.forEach(elem => {
-                                //     dist.push(elem)
-                                // });
-                            }
-                            this.setState({ data_distributer: dist })
-                        }
-                    });
-
-                    url =
-                        'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address=' + wallet // bob
-
-                    fetch(url)
-                        .then((result) => result.json())
-                        .then((result) => {
-                            // console.log(result.transactions)
-                            var elem = result.transactions
-                            records.forEach((instrument) => {
-                                var hasReceive = false
-                                var hasSend = false
-
-                                if (!isAdmin) {
-                                    //Check receive 
-                                    for (let i = 0; i < elem.length - 1; i++) {
-                                        if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) {
-                                            if (elem[i]["asset-transfer-transaction"].receiver === wallet) {
-                                                hasReceive = true
-                                                break
-                                            }
-                                        }
-                                    }
-
-                                    //Check send
-                                    for (let i = 0; i < elem.length - 1; i++) {
-                                        if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) {
-                                            if (elem[i].sender === wallet) {
-                                                hasSend = true
-                                                break
-                                            }
-                                        }
-                                    }
-
-                                } else {
-                                    hasReceive = true
-                                    for (let i = 0; i < elem.length - 1; i++) {
-                                        if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) {
-                                            if (elem[i]["asset-transfer-transaction"].receiver !== wallet) {
-                                                hasSend = true
-                                                break
-                                            }
-                                        }
-                                    }
-                                }
-
-
-                                //append available
-                                if (hasReceive && !hasSend)
-                                    av.push(instrument);
-
-                                if (hasReceive)
-                                    records_view.push(instrument)
-
-                            });
-                            console.log(this.state.data_distributer)
-                            if ({ render_type }.render_type === 'view_assign')
-                                this.setState({ data: av })
-                            else
-                                this.setState({ data: records_view })
-
-                            this.setState({ getData: true })
-                        })
-                }
-            })
-    }
-
-
-    render() {
-
-        const { data, getData, data_distributer } = this.state;
-        const { render_type, navigation } = this.props
-
-
-        if (!{ getData }.getData)
-            return <h5>Loading...</h5>
-
-        if (!{ data }.data.length) {
-            if ({ render_type }.render_type === 'view_instrument') {
-                return (
-                    < div className="container" >
-                        <Table tableData={[]} render_type={render_type} navigation={navigation} />
-                    </div >
-                )
+        let url = () => {
+            if (index) {
+                const base_txt = 'serial_id:'
+                return 'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?note-prefix=' + btoa(base_txt + index)
             }
-
-            return <h5>No data fetch!</h5>
+            if (wallet) {
+                return 'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address=' + wallet
+            }
+            return 'https://algoindexer.testnet.algoexplorerapi.io/v2/assets/' + asset_id + '/transactions?address-role=sender&address=' + walletAdmin
         }
 
+        if (wallet) {
+            if (this.props.dataView)
+                return
+        }
 
-        return (
-            < div className="container" >
-                <Table tableData={data} render_type={render_type} navigation={navigation} />
-            </div >
-        )
+        fetch(url())
+            .then((result) => result.json())
+            .then((result) => {
+
+
+                //If view instrument
+                if (index) {
+                    let temp_arr = []
+
+                    result.transactions.forEach(element => {
+                        temp_arr.push(element);
+                    })
+                    this.props.setDataIns(temp_arr)
+                    return
+                }
+
+                //If user login
+                if (wallet) {
+                    let temp_arr_assign = []
+                    let temp_arr_view = []
+
+                    var elem = result.transactions
+                    let allIns = this.props.dataAll
+
+                    allIns.forEach((instrument) => {
+                        var hasReceive = false
+                        var hasSend = false
+
+                        if (wallet !== walletAdmin) {
+                            for (let i = 0; i < elem.length - 1; i++) {
+                                if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) {
+                                    if (elem[i]["asset-transfer-transaction"].receiver === wallet) {
+                                        hasReceive = true
+                                        break
+                                    }
+                                }
+                            }
+
+                            //Check send
+                            for (let i = 0; i < elem.length - 1; i++) {
+                                if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) {
+                                    if (elem[i].sender === wallet) {
+                                        hasSend = true
+                                        break
+                                    }
+                                }
+                            }
+
+                        } else {
+                            hasReceive = true
+                            for (let i = 0; i < elem.length - 1; i++) {
+                                if (atob(elem[i].note).split('serial_id:')[1] === instrument.ins_id) {
+                                    if (elem[i]["asset-transfer-transaction"].receiver !== wallet) {
+                                        hasSend = true
+                                        break
+                                    }
+                                }
+                            }
+                        }
+
+
+                        //append available into available assign
+                        if (hasReceive && !hasSend)
+                            temp_arr_assign.push(instrument);
+
+                        //append available into available view
+                        if (hasReceive)
+                            temp_arr_view.push(instrument)
+                    });
+
+                    this.props.setDataAssign(temp_arr_assign)
+                    this.props.setDataView(temp_arr_view)
+                    return
+                }
+
+                //Fetch all instrument and distributer
+                let temp_arr_instument = []
+                let temp_arr_dist = []
+                result.transactions.forEach((element, index, array) => {
+                    if (index === (array.length - 1))
+                        return
+
+                    if (element["asset-transfer-transaction"].receiver === walletAdmin) {
+                        let json_note
+                        try {
+                            json_note = JSON.parse(atob(element.note))
+                            temp_arr_instument.push(json_note)
+                        } catch (e) {
+                            let dist_elem = atob(element.note).split('distributer:')[1]
+                            if (dist_elem)
+                                temp_arr_dist.push(dist_elem)
+                        }
+                    }
+                });
+
+                this.props.setDataAll(temp_arr_instument)
+                this.props.setDataDistributer(temp_arr_dist)
+                return
+            })
+
+
+
+    }
+
+    render() {
+        return
     }
 }
-
 export default Api

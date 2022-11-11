@@ -24,45 +24,39 @@ const TableHeader = (props) => {
                 </tr>
             </thead>
         )
-    } else if (props.render_type === 'view_instrument') {
-        return (
-            <thead>
-                <tr>
-                    <th>Ownership</th>
-                </tr>
-            </thead>
-        )
     }
+
+    return
 }
 
 const TableBody = (props) => {
     var rows
     const walletAdmin = 'TKFWGIK3TTRU7C5GCZCTMLT6D5TML6BYVER54OCGFWSC443BUI2XLNDFOQ'
 
-    const first_row = () => {
-        return (
-            <tr key={0}>
-                <td>{walletAdmin}</td>
-            </tr>
-        )
-    }
+    // const first_row = () => {
+    //     return (
+    //         <tr key={0}>
+    //             <td>{walletAdmin}</td>
+    //         </tr>
+    //     )
+    // }
 
     //first row
-    if (props.render_type === 'view_instrument') {
+    // if (props.render_type === 'view_instrument') {
 
-        if (props.tableData) {
-            rows = props.tableData.map((row, index) => {
-                return (
-                    <tr key={index}>
-                        {/* <td>{row.sender}</td> */}
-                        <td>{row["asset-transfer-transaction"].receiver}</td>
-                        {/* <td><button onClick={() => props.changePage("view", row.ins_id)}>View</button></td> */}
-                    </tr>
-                )
-            })
-        }
+    //     if (props.tableData) {
+    //         rows = props.tableData.map((row, index) => {
+    //             return (
+    //                 <tr key={index}>
+    //                     {/* <td>{row.sender}</td> */}
+    //                     <td>{row["asset-transfer-transaction"].receiver}</td>
+    //                     {/* <td><button onClick={() => props.changePage("view", row.ins_id)}>View</button></td> */}
+    //                 </tr>
+    //             )
+    //         })
+    //     }
 
-    } else if (props.render_type === 'view_all' || props.render_type === 'view_assign') {
+    // } else if (props.render_type === 'view_all' || props.render_type === 'view_assign') {
         let page = props.render_type === 'view_all' ? '/ViewInstrument' : '/Assign'
         let page_txt = props.render_type === 'view_all' ? 'View' : 'Assign'
         rows = props.tableData.map((row, index) => {
@@ -85,13 +79,13 @@ const TableBody = (props) => {
                 </tr>
             )
         })
-    }
+    // }
 
-    if (!props.tableData)
-        return <tbody>{first_row()}</tbody>
+    // if (!props.tableData)
+    //     return <tbody>{first_row()}</tbody>
 
-    if (props.render_type === 'view_instrument')
-        return <tbody>{first_row()}{rows}</tbody>
+    // if (props.render_type === 'view_instrument')
+    //     return <tbody>{first_row()}{rows}</tbody>
 
     return <tbody>{rows}</tbody>
 }
@@ -100,25 +94,59 @@ const TableBody = (props) => {
 class Table extends Component {
 
     render() {
-        const { tableData, render_type, navigation } = this.props
+        const { dataView, dataAssign, dataIns, navigation } = this.props
+
         var button_page
-        if ({ render_type }.render_type === 'view_all' || { render_type }.render_type === 'view_assign') {
-            button_page = '/'
-        } else {
-            button_page = '/ViewAll'
+        var render_type
+
+        // if (dataIns) {
+        //     button_page = '/ViewAll'
+        //     render_type = 'view_instrument'
+        //     return (
+        //         <div className="display">
+        //             <table>
+        //                 <TableHeader render_type={render_type} />
+        //                 <TableBody tableData={dataIns} render_type={render_type} navigation={navigation} />
+        //             </table>
+        //             <button onClick={() => navigation(button_page)}>Back</button>
+        //         </div>
+        //     )
+        // }
+        // else {
+        button_page = '/MainMenu'
+        if (dataAssign) {
+            render_type = 'view_assign'
+            if (!dataAssign.length)
+            return <h1>No available instrument to assign</h1>
+
+            return (
+                <div className="display">
+                    <table>
+                        <TableHeader render_type={render_type} />
+                        <TableBody tableData={dataAssign} render_type={render_type} navigation={navigation} />
+                    </table>
+                    <button onClick={() => navigation(button_page)}>Back</button>
+                </div>
+            )
+                
+        } else if (dataView) {
+            render_type = 'view_all'
+            if (!dataView.length)
+            return <h1>No instrument to view</h1>
+
+            return (
+                <div className="display">
+                    <table>
+                        <TableHeader render_type={render_type} />
+                        <TableBody tableData={dataView} render_type={render_type} navigation={navigation} />
+                    </table>
+                    <button onClick={() => navigation(button_page)}>Back</button>
+                </div>
+            )
         }
-        return (
-
-
-            <div className="display">
-                <table>
-                    <TableHeader render_type={render_type} />
-                    <TableBody tableData={tableData} render_type={render_type} navigation={navigation} />
-                </table>
-                {/* onClick={() => changePage({button_page}, '')} */}
-                <button onClick={() => navigation(button_page)}>Back</button>
-            </div>
-        )
+        //Return nothing if error
+        return
+        // }
     }
 }
 
