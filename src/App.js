@@ -1,7 +1,7 @@
 // import React, { Component } from 'react'
 import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from 'react';
-import { Apptest, Main, MainMenu, Add, Assign, Detail, ViewAll, ViewAssign, ViewInstrument } from './Pages'
+import { Main, MainMenu, Add, Assign, Detail, ViewAll, ViewAssign, ViewInstrument } from './Pages'
 
 export default function App() {
     const navigate = useNavigate()
