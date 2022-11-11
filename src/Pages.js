@@ -276,9 +276,40 @@ const ViewAll = (props) => {
 };
 
 const ViewAssign = (props) => {
+    const wallet = props.wallet
+
+    let [insId, setInsId] = useState()
+    let [signedTx, setSignedTx] = useState()
+
+    const assign_txt = 'serial_id:'
+
+    const assign = async () => {
+        try {
+            let recieverAddress = prompt("Please enter receiver wallet address:", "");
+            const params = await algodClient.getTransactionParams().do();
+            const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+                suggestedParams: params,
+                from: wallet,
+                to: recieverAddress,
+                assetIndex: 120764329,
+                amount: 1,
+                note: encoder.encode(assign_txt + insId)
+            });
+
+            const stx = await myAlgoConnect.signTransaction(txn.toByte());
+            const b64Stx = Buffer.from(stx.blob).toString("base64");
+            const response = await algodClient.sendRawTransaction(stx.blob).do();
+            setSignedTx(b64Stx)
+            alert("success")
+        } catch (err) {
+            console.error(err);
+            alert("failed")
+        }
+    };
+
     return (
         < div className="container" >
-            <Table dataAssign={props.dataAssign} navigation={props.navigation} />
+            <Table dataAssign={props.dataAssign} assign={assign} setInsId={setInsId} navigation={props.navigation} />
         </div >
     )
 };
